@@ -1,0 +1,14 @@
+name = "vectorhorizon-worker"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+
+[vars]
+SUPABASE_URL = ""
+SUPABASE_SERVICE_ROLE_KEY = ""
+CLERK_JWKS_URL = "https://your-domain.clerk.accounts.dev/.well-known/jwks.json"
+NVIDIA_COSMOS_API_KEY = ""
+NVIDIA_COSMOS_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
+[[r2_buckets]]
+binding = "WORLD_ASSETS"
+bucket_name = "vectorhorizon-world-assets"
