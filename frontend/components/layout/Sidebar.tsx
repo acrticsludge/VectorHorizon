@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { SignedIn } from '@clerk/nextjs';
+import { Show } from '@clerk/nextjs';
 
 const sidebarLink = (href: string, icon: string, label: string, active?: boolean) => (
   <Link
@@ -18,7 +18,7 @@ const sidebarLink = (href: string, icon: string, label: string, active?: boolean
 export function Sidebar() {
   return (
     <aside className="hidden lg:flex flex-col h-screen py-6 px-4 gap-4 fixed left-0 top-16 w-64 bg-[#131315] border-r border-[#27272a] z-40">
-      <SignedIn>
+      <Show when="signed-in">
         <nav className="flex flex-col gap-1 flex-1">
           {sidebarLink('/dashboard', 'dashboard', 'Dashboard', true)}
         </nav>
@@ -31,7 +31,7 @@ export function Sidebar() {
             Create New World
           </Link>
         </div>
-      </SignedIn>
+      </Show>
     </aside>
   );
 }

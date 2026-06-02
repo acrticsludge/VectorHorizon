@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { UserButton, SignedIn, SignedOut } from '@clerk/nextjs';
+import { UserButton, Show } from '@clerk/nextjs';
 
 export function Navbar() {
   return (
@@ -18,17 +18,21 @@ export function Navbar() {
         </nav>
       </div>
       <div className="flex items-center gap-4">
-        <SignedOut>
-          <Link href="/sign-in" className="text-[14px] leading-[1.6] text-[#a1a1aa] hover:text-white transition-colors duration-200">
-            Sign In
-          </Link>
-          <Link href="/sign-up" className="bg-white text-black px-4 py-2 rounded text-[12px] leading-[1.0] tracking-[0.05em] font-medium hover:opacity-90 transition-opacity">
-            Get Started
-          </Link>
-        </SignedOut>
-        <SignedIn>
-          <UserButton afterSignOutUrl="/" />
-        </SignedIn>
+        <Show
+          when="signed-in"
+          fallback={
+            <>
+              <Link href="/sign-in" className="text-[14px] leading-[1.6] text-[#a1a1aa] hover:text-white transition-colors duration-200">
+                Sign In
+              </Link>
+              <Link href="/sign-up" className="bg-white text-black px-4 py-2 rounded text-[12px] leading-[1.0] tracking-[0.05em] font-medium hover:opacity-90 transition-opacity">
+                Get Started
+              </Link>
+            </>
+          }
+        >
+          <UserButton />
+        </Show>
       </div>
     </header>
   );
