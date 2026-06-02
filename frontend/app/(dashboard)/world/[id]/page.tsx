@@ -2,19 +2,13 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
 import { useCanvasEngine } from '@/lib/hooks/useCanvasEngine';
 import { useJoystickController } from '@/lib/hooks/useJoystickController';
 import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { ShimmerSkeleton } from '@/components/layout/ShimmerSkeleton';
 import type { TrajectoryDirection } from '@/lib/types/world';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const dirMap: Record<string, TrajectoryDirection> = {
   up: 'forward',
@@ -25,7 +19,6 @@ const dirMap: Record<string, TrajectoryDirection> = {
 
 export default function WorldCanvasPage() {
   const params = useParams<{ id: string }>();
-  const { getToken } = useAuth();
   const {
     state,
     currentVideo,
@@ -48,9 +41,7 @@ export default function WorldCanvasPage() {
   useEffect(() => {
     async function load() {
       if (!params.id || params.id === 'new') return;
-      const token = await getToken({ template: 'supabase' });
-      if (!token) return;
-      const { data } = await supabase
+      const { data } = await getSupabase()
         .from('worlds')
         .select('*')
         .eq('id', params.id)
@@ -61,7 +52,7 @@ export default function WorldCanvasPage() {
       }
     }
     load();
-  }, [params.id, getToken]);
+  }, [params.id]);
 
   const onStart = useCallback((dir: TrajectoryDirection) => setGenerating(dir), [setGenerating]);
   const onComplete = useCallback((dir: TrajectoryDirection, url: string) => {
