@@ -10,6 +10,15 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { ShimmerSkeleton } from '@/components/layout/ShimmerSkeleton';
 import type { TrajectoryDirection } from '@/lib/types/world';
 
+// Raw DB row shape (snake_case from Supabase)
+interface WorldRow {
+  id: string;
+  user_id: string;
+  name: string;
+  initial_image_url: string;
+  created_at: string;
+}
+
 const dirMap: Record<string, TrajectoryDirection> = {
   up: 'forward',
   down: 'backward',
@@ -47,7 +56,7 @@ export default function WorldCanvasPage() {
         .eq('id', params.id)
         .single();
       if (data) {
-        setInitialImageUrl(data.initial_image_url);
+        setInitialImageUrl((data as WorldRow).initial_image_url);
         setLoaded(true);
       }
     }
