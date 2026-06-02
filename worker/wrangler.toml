@@ -3,11 +3,12 @@ main = "src/index.ts"
 compatibility_date = "2026-06-01"
 
 [vars]
-SUPABASE_URL = ""
-SUPABASE_SERVICE_ROLE_KEY = ""
+SUPABASE_URL = "https://ovafefhvtpblxonkxowh.supabase.co"
 CLERK_JWKS_URL = "https://usable-heron-58.clerk.accounts.dev/.well-known/jwks.json"
-NVIDIA_COSMOS_API_KEY = ""
 NVIDIA_COSMOS_BASE_URL = "https://integrate.api.nvidia.com/v1"
+# SECRETS (set via `wrangler secret put`):
+# SUPABASE_SERVICE_ROLE_KEY  — Supabase project settings → API
+# NVIDIA_COSMOS_API_KEY     — build.nvidia.com → Cosmos
 
 [[r2_buckets]]
 binding = "WORLD_ASSETS"
