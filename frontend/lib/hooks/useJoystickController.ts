@@ -30,6 +30,13 @@ export function useJoystickController(options: UseJoystickControllerOptions) {
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const executeDirection = useCallback(async (direction: TrajectoryDirection) => {
+    // Guard: don't send empty base64 — prevents 400 from worker
+    if (!currentFrameBase64) {
+      onError('World image not loaded yet — please wait');
+      setIsGenerating(false);
+      return;
+    }
+
     setIsGenerating(true);
     onGenerationStart(direction);
     setQueueDirection(null);

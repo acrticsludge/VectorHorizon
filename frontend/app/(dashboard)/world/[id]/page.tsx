@@ -10,6 +10,15 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { ShimmerSkeleton } from '@/components/layout/ShimmerSkeleton';
 import type { TrajectoryDirection } from '@/lib/types/world';
 
+// R2 public base URL — used to construct Worker proxy URLs for CORS-safe fetching
+const R2_PUBLIC_BASE = 'https://pub-800c55710a42465eb604aa933812de4f.r2.dev';
+const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8787';
+
+/** Convert R2 public URL to Worker proxy URL (bypasses browser CORS) */
+function toWorkerAssetUrl(publicUrl: string): string {
+  return publicUrl.replace(R2_PUBLIC_BASE, `${WORKER_URL}/assets`);
+}
+
 // Raw DB row shape (snake_case from Supabase)
 interface WorldRow {
   id: string;
@@ -47,17 +56,24 @@ export default function WorldCanvasPage() {
   const [currentFrameBase64, setCurrentFrameBase64] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Convert initial image to base64 when it loads
+  // Convert initial image to base64 when it loads (via Worker proxy for CORS)
   useEffect(() => {
     if (!initialImageUrl) return;
-    fetch(initialImageUrl)
-      .then((r) => r.blob())
+    const assetUrl = toWorkerAssetUrl(initialImageUrl);
+    fetch(assetUrl)
+      .then((r) => {
+        if (!r.ok) throw new Error(`Image fetch failed: ${r.status}`);
+        return r.blob();
+      })
       .then((blob) => {
         const reader = new FileReader();
         reader.onloadend = () => setCurrentFrameBase64(reader.result as string);
         reader.readAsDataURL(blob);
       })
-      .catch(() => {}); // silently fail — generation will show a clear error
+      .catch((err) => {
+        console.error('[world] Failed to load initial image:', err);
+        setCurrentFrameBase64(''); // stays empty — generate will show clear error
+      });
   }, [initialImageUrl]);
 
   useEffect(() => {

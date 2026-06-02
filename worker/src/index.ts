@@ -37,20 +37,46 @@ app.post('/worlds', async (c) => {
   } catch (err) { console.error('[worker] Upload catch-all:', err); return c.json({ error: 'Upload failed' }, 500); }
 });
 
+// Serve assets from R2 with CORS headers (for browsers that enforce CORS)
+app.get('/assets/*', async (c) => {
+  const url = new URL(c.req.raw.url);
+  const key = url.pathname.replace('/assets/', '');
+  if (!key) return c.json({ error: 'Missing asset key' }, 400);
+
+  const object = await c.env.WORLD_ASSETS.get(key);
+  if (!object) return c.json({ error: 'Asset not found' }, 404);
+
+  const headers = new Headers();
+  headers.set('Content-Type', object.httpMetadata?.contentType || 'application/octet-stream');
+  headers.set('Cache-Control', 'public, max-age=86400');
+  headers.set('Access-Control-Allow-Origin', '*');
+  return c.newResponse(object.body, { headers });
+});
+
 app.post('/generate', async (c) => {
   const auth = await verifyAuth(c.req.header('Authorization')?.replace('Bearer ', '') || '', c.env);
   if ('error' in auth) return c.json({ error: auth.error }, 401);
 
   const body: GenerationRequest = await c.req.json();
-  if (!body.worldId || !body.direction || !body.imageBase64) {
-    return c.json({ error: 'Missing required fields: worldId, direction, imageBase64' }, 400);
-  }
+  const missing: string[] = [];
+  if (!body.worldId) missing.push('worldId');
+  if (!body.direction) missing.push('direction');
+  if (!body.imageBase64) missing.push('imageBase64');
+  else if (body.imageBase64.length < 50) return c.json({ error: 'imageBase64 appears truncated or invalid (too short)' }, 400);
+  if (missing.length) return c.json({ error: `Missing required fields: ${missing.join(', ')}` }, 400);
   if (!['forward', 'backward', 'left', 'right'].includes(body.direction)) {
     return c.json({ error: 'Invalid direction' }, 400);
   }
 
   try {
-    const cosmosResult = await generateVideo(c.env, body.imageBase64, body.trajectoryVector);
+    const directionLabels: Record<string, string> = {
+      forward: 'The camera moves forward through the scene, revealing new depth.',
+      backward: 'The camera pulls backward, widening the field of view.',
+      left: 'The camera pans left, revealing left-side details.',
+      right: 'The camera pans right, revealing right-side details.',
+    };
+    const prompt = body.trajectoryVector || directionLabels[body.direction] || `Camera moves ${body.direction}`;
+    const cosmosResult = await generateVideo(c.env, body.imageBase64, prompt);
     if ('error' in cosmosResult) return c.json({ error: cosmosResult.error }, 502);
 
     // Decode base64 video → binary
