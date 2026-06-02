@@ -17,7 +17,7 @@ const sidebarLink = (href: string, icon: string, label: string, active?: boolean
 
 export function Sidebar() {
   return (
-    <aside className="hidden lg:flex flex-col h-screen py-6 px-4 gap-4 fixed left-0 top-16 w-64 bg-[#131315] border-r border-[#27272a] z-40">
+    <aside className="hidden lg:flex flex-col fixed left-0 top-16 bottom-24 w-64 py-6 px-4 gap-4 bg-[#131315] border-r border-[#27272a] z-40">
       <Show when="signed-in">
         <nav className="flex flex-col gap-1 flex-1">
           {sidebarLink('/dashboard', 'dashboard', 'Dashboard', true)}

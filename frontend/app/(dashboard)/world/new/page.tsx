@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserButton } from '@clerk/nextjs';
 import { uploadImage } from '@/lib/api/worker';
 import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -75,14 +74,14 @@ export default function NewWorldPage() {
       <Navbar />
       <Sidebar />
 
-      <main className="flex-1 mt-16 lg:ml-64 p-[16px] md:p-6 max-w-4xl mx-auto w-full flex flex-col items-center justify-center">
+      <main className="dashboard-route-panel flex-1 mt-16 lg:ml-64 lg:w-[calc(100%-16rem)] p-[16px] md:p-6 w-full flex flex-col items-center justify-center">
         {/* Page header */}
         <div className="text-center mb-12 mt-8">
           <h2 className="text-[32px] leading-[1.2] tracking-[-0.01em] font-medium mb-2">New World</h2>
           <p className="text-[14px] leading-[1.6] text-[#a1a1aa]">Upload an image to serve as your starting environment.</p>
         </div>
 
-        <div className="w-full flex flex-col gap-8">
+        <div className="w-full max-w-4xl flex flex-col gap-8">
           {/* Upload zone */}
           <label
             className={`relative group cursor-pointer w-full aspect-video border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-4 transition-all duration-300 ${
@@ -99,23 +98,23 @@ export default function NewWorldPage() {
             </div>
             <div className="text-center">
               <p className="text-[18px] leading-[1.4] font-medium text-white">Drop an image here, or click to browse</p>
-              <p className="text-[12px] leading-[1.0] tracking-[0.05em] font-medium uppercase text-[#a1a1aa] mt-1">JPEG, PNG, WebP — max 10MB</p>
+              <p className="text-[12px] leading-[1.0] tracking-[0.05em] font-medium uppercase text-[#a1a1aa] mt-1">JPEG, PNG, WebP - max 10MB</p>
             </div>
           </label>
 
           {/* Preview state */}
           {previewUrl && !uploading && (
-            <div className="w-full p-6 border border-[#27272a] rounded-lg bg-[#201f22] flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="relative w-20 h-20 rounded border border-[#27272a] overflow-hidden bg-[#0e0e10]">
+            <div className="w-full p-4 sm:p-6 border border-[#27272a] rounded-lg bg-[#201f22] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="relative w-20 h-20 shrink-0 rounded border border-[#27272a] overflow-hidden bg-[#0e0e10]">
                   <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[18px] leading-[1.4] font-medium text-white">{fileName}</span>
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-[18px] leading-[1.4] font-medium text-white">{fileName}</span>
                   <span className="text-[12px] leading-[1.0] tracking-[0.05em] font-medium uppercase text-[#a1a1aa]">Ready to process</span>
                 </div>
               </div>
-              <button onClick={resetUpload} className="p-2 text-[#a1a1aa] hover:text-red-500 transition-colors">
+              <button onClick={resetUpload} className="self-end sm:self-auto p-2 text-[#a1a1aa] hover:text-red-500 transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>

@@ -26,7 +26,13 @@ export function useWorldPersistence() {
     setLoading(false);
   }, [getToken]);
 
-  useEffect(() => { fetchWorlds(); }, [fetchWorlds]);
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void fetchWorlds();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [fetchWorlds]);
 
   return { worlds, loading, refresh: fetchWorlds };
 }

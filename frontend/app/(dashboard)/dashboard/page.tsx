@@ -79,7 +79,7 @@ async function WorldsGrid() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0">
       {worlds.map((w) => (
         <WorldCard key={w.id} world={w} />
       ))}
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen flex flex-col bg-[#0e0e10] text-[#e5e1e4]">
       <Navbar />
       <Sidebar />
-      <main className="flex-1 mt-16 lg:ml-64 p-[16px] md:p-6 flex flex-col gap-6 relative">
+      <main className="dashboard-route-panel flex-1 mt-16 lg:ml-64 lg:w-[calc(100%-16rem)] p-[16px] md:p-6 flex flex-col gap-6 relative">
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-4 relative z-10">
           <div className="flex flex-col gap-1">
             <h1 className="text-[32px] leading-[1.2] tracking-[-0.01em] font-medium text-white">My Worlds</h1>
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
           </div>
           <Link
             href="/world/new"
-            className="bg-white text-black text-[12px] leading-[1.0] tracking-[0.05em] font-medium px-6 h-10 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95"
+            className="w-full md:w-auto bg-white text-black text-[12px] leading-[1.0] tracking-[0.05em] font-medium px-6 h-10 rounded flex items-center justify-center gap-2 hover:bg-[#e5e1e4] transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
             New World

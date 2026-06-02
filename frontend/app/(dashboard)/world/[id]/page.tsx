@@ -26,11 +26,23 @@ const dirMap: Record<string, TrajectoryDirection> = {
 export default function WorldCanvasPage() {
   const params = useParams<{ id: string }>();
   const { getToken } = useAuth();
-  const engine = useCanvasEngine();
+  const {
+    state,
+    currentVideo,
+    nextVideo,
+    currentRef,
+    nextRef,
+    isTransitioning,
+    playVideo,
+    setGenerating,
+    setError,
+    setCollision,
+    handleVideoEnded,
+  } = useCanvasEngine();
 
   const [initialImageUrl, setInitialImageUrl] = useState('');
   const [loaded, setLoaded] = useState(false);
-  const [currentFrameBase64, setCurrentFrameBase64] = useState('');
+  const [currentFrameBase64] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,15 +63,15 @@ export default function WorldCanvasPage() {
     load();
   }, [params.id, getToken]);
 
-  const onStart = useCallback((dir: TrajectoryDirection) => engine.setGenerating(dir), [engine]);
+  const onStart = useCallback((dir: TrajectoryDirection) => setGenerating(dir), [setGenerating]);
   const onComplete = useCallback((dir: TrajectoryDirection, url: string) => {
-    engine.playVideo({ url, direction: dir, id: `${Date.now()}` });
-  }, [engine]);
+    playVideo({ url, direction: dir, id: `${Date.now()}` });
+  }, [playVideo]);
   const onError = useCallback((msg: string) => {
-    engine.setError(msg);
+    setError(msg);
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
-  }, [engine]);
+  }, [setError]);
 
   const joystick = useJoystickController({
     worldId: params.id || '',
@@ -67,8 +79,8 @@ export default function WorldCanvasPage() {
     onGenerationStart: onStart,
     onGenerationComplete: onComplete,
     onCollision: (dir) => {
-      engine.setCollision(dir);
-      setToastMessage(`Cannot move ${dir} — boundary reached`);
+      setCollision(dir);
+      setToastMessage(`Cannot move ${dir} - boundary reached`);
       setTimeout(() => setToastMessage(null), 4000);
     },
     onError,
@@ -86,15 +98,15 @@ export default function WorldCanvasPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [joystick]);
 
-  const status = engine.state.status;
-  const direction = status === 'generating' ? (engine.state as { direction: TrajectoryDirection }).direction : null;
+  const status = state.status;
+  const direction = status === 'generating' ? (state as { direction: TrajectoryDirection }).direction : null;
 
   if (!loaded) {
     return (
       <div className="min-h-screen bg-[#0e0e10]">
         <Navbar />
         <Sidebar />
-        <main className="flex items-center justify-center mt-16 lg:ml-64 p-6 h-[calc(100vh-64px)]">
+        <main className="flex items-center justify-center mt-16 lg:ml-64 lg:w-[calc(100%-16rem)] p-6 h-[calc(100dvh-64px)]">
           <ShimmerSkeleton variant="viewport" />
         </main>
       </div>
@@ -106,8 +118,8 @@ export default function WorldCanvasPage() {
       <Navbar />
       <Sidebar />
 
-      <main className="flex-grow flex items-center justify-center p-[16px] lg:p-6 relative mt-16 lg:ml-64">
-        <div className="relative w-full max-w-[1200px] aspect-video bg-[#131315] rounded-lg border border-[#27272a] overflow-hidden group">
+      <main className="flex-grow flex items-center justify-center p-[16px] lg:p-6 relative mt-16 lg:ml-64 lg:w-[calc(100%-16rem)] min-w-0">
+        <div className="relative w-full max-w-[1200px] max-h-[calc(100dvh-7rem)] aspect-video bg-[#131315] rounded-lg border border-[#27272a] overflow-hidden group">
           <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-30 pointer-events-none">
             <div className="flex flex-col gap-1 pointer-events-auto">
               <h1 className="text-[18px] leading-[1.4] font-medium text-white">World Canvas</h1>
@@ -128,23 +140,23 @@ export default function WorldCanvasPage() {
               <img src={initialImageUrl} alt="World environment" className="w-full h-full object-cover transition-all duration-700" />
             )}
 
-            {engine.currentVideo && (
+            {currentVideo && (
               <video
-                ref={engine.currentRef}
-                src={engine.currentVideo.url}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${engine.isTransitioning ? 'opacity-0' : 'opacity-100'}`}
+                ref={currentRef}
+                src={currentVideo.url}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
                 autoPlay
                 playsInline
                 muted
-                onEnded={engine.handleVideoEnded}
+                onEnded={handleVideoEnded}
               />
             )}
 
-            {engine.nextVideo && (
+            {nextVideo && (
               <video
-                ref={engine.nextRef}
-                src={engine.nextVideo.url}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${engine.isTransitioning ? 'opacity-100' : 'opacity-0'}`}
+                ref={nextRef}
+                src={nextVideo.url}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
                 autoPlay
                 playsInline
                 muted
@@ -159,8 +171,8 @@ export default function WorldCanvasPage() {
             )}
           </div>
 
-          <div className="absolute bottom-6 right-6 z-40">
-            <div className="relative w-40 h-40 rounded-full bg-[#131315]/80 border border-[#27272a]/30 flex items-center justify-center">
+          <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 z-40">
+            <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#131315]/80 border border-[#27272a]/30 flex items-center justify-center">
               <div className="w-3 h-3 rounded-full bg-[#8e9192]" />
 
               {[
@@ -174,7 +186,7 @@ export default function WorldCanvasPage() {
                   onClick={() => joystick.handleDirection(dirMap[dir])}
                   disabled={joystick.isGenerating}
                   aria-label={label}
-                  className={`joystick-btn absolute ${pos} w-12 h-12 flex items-center justify-center rounded-full hover:bg-[#2a2a2c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed`}
+                  className={`joystick-btn absolute ${pos} w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full hover:bg-[#2a2a2c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed`}
                 >
                   <span className="material-symbols-outlined text-[#a1a1aa]">{icon}</span>
                 </button>
@@ -187,7 +199,7 @@ export default function WorldCanvasPage() {
               toastMessage ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
             }`}
           >
-            <div className="bg-[#93000a] text-white px-6 py-3 rounded border border-red-500/20 flex items-center gap-3 shadow-lg">
+            <div className="max-w-[calc(100vw-2rem)] bg-[#93000a] text-white px-4 sm:px-6 py-3 rounded border border-red-500/20 flex items-center gap-3 shadow-lg">
               <span className="material-symbols-outlined text-[18px]">error</span>
               <span className="text-[14px] leading-[1.6] font-medium">{toastMessage || ''}</span>
             </div>

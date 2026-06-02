@@ -5,7 +5,7 @@ import { HeroCanvas } from '@/components/landing/HeroCanvas';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#0e0e10] text-[#e5e1e4]" style={{ fontFamily: 'Geist, sans-serif' }}>
+    <div className="min-h-screen flex flex-col bg-[#0e0e10] text-[#e5e1e4] overflow-x-hidden">
       <Navbar />
 
       <main className="flex-grow pt-32 px-[16px] max-w-[1440px] mx-auto w-full">
@@ -17,7 +17,7 @@ export default function LandingPage() {
             <p className="text-[14px] leading-[1.6] text-[#a1a1aa] max-w-sm">
               Upload a photo, press forward, and watch NVIDIA Cosmos generate a physically consistent 3D video environment.
             </p>
-            <div className="flex items-center gap-6 pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 pt-4">
               <Link
                 href="/sign-up"
                 className="bg-white text-black px-8 py-3 rounded text-[18px] leading-[1.4] font-bold active:opacity-80 transition-all"
@@ -45,7 +45,7 @@ export default function LandingPage() {
           <HeroCanvas />
         </section>
 
-        <section className="mt-32 mb-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800">
+        <section className="mt-32 mb-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 overflow-hidden">
           {[
             { icon: 'deployed_code', title: 'Physically Consistent', desc: 'Neural simulation ensures gravity, lighting, and textures behave exactly as in the real world.' },
             { icon: 'database', title: 'Spatial Memory', desc: 'Worlds are persistent. Everything stays exactly where you left it, rendered in infinite detail.' },

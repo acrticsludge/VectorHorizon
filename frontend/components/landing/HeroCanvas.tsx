@@ -61,7 +61,7 @@ export function HeroCanvas() {
         </div>
       </div>
 
-      <div className="absolute -bottom-4 -right-4 w-64 h-32 border border-zinc-700 bg-zinc-950 p-4 hidden lg:block">
+      <div className="absolute -bottom-4 right-4 xl:-right-4 w-64 h-32 border border-zinc-700 bg-zinc-950 p-4 hidden lg:block">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-zinc-800 flex items-center justify-center">
             <span className="material-symbols-outlined text-sm">add_photo_alternate</span>
