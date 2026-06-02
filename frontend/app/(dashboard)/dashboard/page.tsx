@@ -1,11 +1,12 @@
 import { Suspense } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { ShimmerSkeleton } from '@/components/layout/ShimmerSkeleton';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+
+const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL || 'http://localhost:8787';
 
 function WorldCard({ world }: { world: { id: string; name: string; initial_image_url: string; created_at: string } }) {
   const date = new Date(world.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -41,23 +42,22 @@ function WorldCard({ world }: { world: { id: string; name: string; initial_image
 
 async function WorldsGrid() {
   const { getToken } = await auth();
-  const token = await getToken({ template: 'supabase' });
+  const token = await getToken();
+  if (!token) return null;
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: { autoRefreshToken: false, persistSession: false },
-      global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
-    }
-  );
+  let worlds: { id: string; name: string; initial_image_url: string; created_at: string }[] = [];
+  try {
+    const res = await fetch(`${WORKER_URL}/worlds`, {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: 0 },
+    });
+    const body = await res.json();
+    worlds = body.data || [];
+  } catch {
+    // Worker unreachable — show empty state
+  }
 
-  const { data: worlds, error } = await supabase
-    .from('worlds')
-    .select('id, name, initial_image_url, created_at')
-    .order('created_at', { ascending: false });
-
-  if (error || !worlds || worlds.length === 0) {
+  if (worlds.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-32 px-[16px] text-center border border-dashed border-[#27272a] rounded-xl bg-[#0e0e10]">
         <div className="mb-6 p-6 rounded-full bg-[#2a2a2c] text-zinc-600">
