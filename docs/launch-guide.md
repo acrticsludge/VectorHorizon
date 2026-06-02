@@ -31,23 +31,14 @@ Step-by-step from zero to deployed.
    CLERK_SECRET_KEY=sk_live_xxxxxxxxx
    ```
 
-### 1.2 Create JWT template for Supabase
+### 1.2 Get JWKS URL (for Supabase verification)
 
-1. Clerk Dashboard → **JWT Templates** → **New Template**
-2. Name: `supabase`
-3. Paste this template:
+> ⚠️ Do **not** create a custom JWT template. Clerk's default JWT already includes `sub = user.id` (a reserved JWT claim that can't be customized). Supabase RLS uses `auth.jwt()->>'sub'` which works with the default Clerk JWT out of the box.
 
-```json
-{
-  "aud": "authenticated",
-  "role": "authenticated",
-  "sub": "{{user.id}}"
-}
-```
-
-4. Save. Copy the **JWKS Endpoint** URL at the top of the template page — looks like:
+1. Clerk Dashboard → **JWT Templates** (section header, not creating a template)
+2. Copy the **JWKS Endpoint** URL at the top of the page — looks like:
    `https://<your-domain>.clerk.accounts.dev/.well-known/jwks.json`
-   Save this as your `CLERK_JWKS_URL`.
+3. Save this as your `CLERK_JWKS_URL` for Supabase + Worker config.
 
 ### 1.3 Set redirect URLs
 
@@ -81,8 +72,10 @@ Step-by-step from zero to deployed.
 1. Supabase Dashboard → **Project Settings** → **Authentication**
 2. Under **JWT Settings**, enable **Use Auth Hook** — toggle ON
 3. Under **Auth Hook URL**, leave blank (we use Clerk JWT directly)
-4. Under **JWT Settings** → **JWKS URL**, paste your Clerk JWKS URL from Step 1.2:
+4. Under **JWT Settings** → **JWKS URL**, paste your Clerk JWKS URL from Step 1.2 (Get JWKS URL):
    `https://<your-domain>.clerk.accounts.dev/.well-known/jwks.json`
+
+   > 💡 Supabase will verify Clerk-issued JWTs using this JWKS endpoint, so `auth.jwt()->>'sub'` in RLS policies automatically matches the Clerk user ID.
 
 ### 2.4 Get API keys
 
