@@ -1,8 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for optimized Vercel deployment
-  output: 'standalone',
+  // Vercel handles output automatically — no output config needed
 
   // Image optimization: allow external images from Cloudflare R2
   images: {
