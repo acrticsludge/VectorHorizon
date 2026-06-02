@@ -90,6 +90,11 @@ temp/
 .wrangler/
 .open-next/
 
+# ── Project directories (managed independently) ─────────────
+/frontend/
+/worker/
+/docs/
+
 # ── Knowledge base & generated ──────────────────────────────
 /me
 /graphify-out
