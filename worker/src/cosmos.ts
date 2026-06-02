@@ -16,7 +16,11 @@ export async function generateVideo(
   const payload: Record<string, unknown> = {
     model: 'nvidia/cosmos-predict2.5-video2world',
     prompt: trajectoryPrompt,
-    image: `data:image/jpeg;base64,${inputImageBase64}`,
+    // Accept both raw base64 and data URLs — strip data: prefix if present
+    const imageData = inputImageBase64.startsWith('data:')
+      ? inputImageBase64
+      : `data:image/jpeg;base64,${inputImageBase64}`;
+    image: imageData,
     video_params: {
       height: 720,
       width: 1280,

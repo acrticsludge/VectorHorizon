@@ -44,8 +44,21 @@ export default function WorldCanvasPage() {
 
   const [initialImageUrl, setInitialImageUrl] = useState('');
   const [loaded, setLoaded] = useState(false);
-  const [currentFrameBase64] = useState('');
+  const [currentFrameBase64, setCurrentFrameBase64] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Convert initial image to base64 when it loads
+  useEffect(() => {
+    if (!initialImageUrl) return;
+    fetch(initialImageUrl)
+      .then((r) => r.blob())
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.onloadend = () => setCurrentFrameBase64(reader.result as string);
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => {}); // silently fail — generation will show a clear error
+  }, [initialImageUrl]);
 
   useEffect(() => {
     async function load() {
