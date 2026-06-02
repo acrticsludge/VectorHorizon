@@ -31,14 +31,29 @@ Step-by-step from zero to deployed.
    CLERK_SECRET_KEY=sk_live_xxxxxxxxx
    ```
 
-### 1.2 Get JWKS URL (for Supabase verification)
+### 1.2 Add `role` claim to Clerk session tokens
 
-> ⚠️ Do **not** create a custom JWT template. Clerk's default JWT already includes `sub = user.id` (a reserved JWT claim that can't be customized). Supabase RLS uses `auth.jwt()->>'sub'` which works with the default Clerk JWT out of the box.
+Supabase requires a `role` claim in the JWT so it knows the user's Postgres role (`authenticated`).
 
-1. Clerk Dashboard → **JWT Templates** (section header, not creating a template)
-2. Copy the **JWKS Endpoint** URL at the top of the page — looks like:
-   `https://<your-domain>.clerk.accounts.dev/.well-known/jwks.json`
-3. Save this as your `CLERK_JWKS_URL` for Supabase + Worker config.
+1. Clerk Dashboard → **JWT Templates** → **New Template**
+2. Name: `supabase`
+3. Add only the `role` claim (don't touch reserved claims like `sub`):
+
+```json
+{
+  "role": "authenticated"
+}
+```
+
+4. **Save**
+
+### 1.3 Note your Clerk domain and JWKS URL
+
+1. Clerk Dashboard → **JWT Templates** (page header)
+2. Note your **Clerk domain** — looks like `example.clerk.accounts.dev` (you'll need it in Supabase)
+3. Note the **JWKS Endpoint** URL — looks like `https://example.clerk.accounts.dev/.well-known/jwks.json` (you'll need it for the Worker)
+
+### 1.4 Set redirect URLs
 
 ### 1.3 Set redirect URLs
 
@@ -67,15 +82,16 @@ Step-by-step from zero to deployed.
 3. Verify tables created: `worlds`, `world_transitions`
 4. Verify RLS is enabled on both tables
 
-### 2.3 Configure Clerk JWT verification
+### 2.3 Add Clerk as Third-Party Auth provider
 
-1. Supabase Dashboard → **Project Settings** → **Authentication**
-2. Under **JWT Settings**, enable **Use Auth Hook** — toggle ON
-3. Under **Auth Hook URL**, leave blank (we use Clerk JWT directly)
-4. Under **JWT Settings** → **JWKS URL**, paste your Clerk JWKS URL from Step 1.2 (Get JWKS URL):
-   `https://<your-domain>.clerk.accounts.dev/.well-known/jwks.json`
+Supabase now has a dedicated Clerk integration — no manual JWKS URL needed.
 
-   > 💡 Supabase will verify Clerk-issued JWTs using this JWKS endpoint, so `auth.jwt()->>'sub'` in RLS policies automatically matches the Clerk user ID.
+1. Supabase Dashboard → **Authentication** → **Third-Party Auth**
+2. Click **Add Clerk**
+3. Enter your **Clerk domain** from Step 1.3 (e.g., `example.clerk.accounts.dev`)
+4. Click **Save**
+
+> 💡 This tells Supabase to accept and verify tokens signed by your Clerk instance. The `auth.jwt()->>'sub'` in RLS policies will automatically match the Clerk user ID, and the `role` claim you added in Step 1.2 gives users the `authenticated` Postgres role.
 
 ### 2.4 Get API keys
 
@@ -234,7 +250,7 @@ NEXT_PUBLIC_APP_URL                = https://vectorhorizon.vercel.app (your Verc
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
-| Dashboard shows "No worlds" after creating one | RLS policy not recognizing Clerk JWT | Check Supabase JWT settings → JWKS URL points to Clerk |
+| Dashboard shows "No worlds" after creating one | RLS policy not recognizing Clerk JWT | Check Supabase → Auth → Third-Party Auth — is Clerk added with correct domain? |
 | World canvas: "Not authenticated" | Clerk token not being sent to Worker | Check `NEXT_PUBLIC_WORKER_URL` in Vercel env |
 | Generation returns error | NVIDIA API key not set or invalid | `cd worker && npx wrangler secret list` to verify |
 | Video plays but no `world_transitions` row | Supabase service_role key wrong | Check `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` |
