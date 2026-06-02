@@ -99,3 +99,6 @@ temp/
 # Audit files can contain sensitive info — keep local
 /audits/
 
+
+# clerk configuration (can include secrets)
+/.clerk/

@@ -1,0 +1,529 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard | VectorHorizon</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
+      body {
+        font-family: "Geist", sans-serif;
+        background-color: #09090b; /* Zinc-950 equivalent */
+        color: #e5e1e4;
+        margin: 0;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 300,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#c8c5ca",
+              "secondary-container": "#47464a",
+              "outline-variant": "#444748",
+              "surface-dim": "#131315",
+              "on-tertiary-fixed-variant": "#47464a",
+              "surface-container": "#201f22",
+              "on-tertiary": "#303033",
+              "on-surface-variant": "#c4c7c8",
+              "on-background": "#e5e1e4",
+              "primary-fixed-dim": "#c6c6c7",
+              "surface-container-high": "#2a2a2c",
+              "on-primary-container": "#636565",
+              secondary: "#c8c5ca",
+              tertiary: "#ffffff",
+              surface: "#131315",
+              "surface-tint": "#c6c6c7",
+              "on-secondary-fixed-variant": "#47464a",
+              "primary-fixed": "#e2e2e2",
+              "on-primary-fixed": "#1a1c1c",
+              "inverse-primary": "#5d5f5f",
+              "on-error-container": "#ffdad6",
+              "surface-container-highest": "#353437",
+              outline: "#8e9192",
+              "on-secondary": "#303033",
+              "surface-variant": "#353437",
+              "primary-container": "#e2e2e2",
+              "on-primary": "#2f3131",
+              "tertiary-container": "#e4e1e5",
+              "surface-container-lowest": "#0e0e10",
+              error: "#ffb4ab",
+              "on-secondary-container": "#b6b4b8",
+              "surface-container-low": "#1c1b1d",
+              "surface-bright": "#39393b",
+              background: "#131315",
+              primary: "#ffffff",
+              "inverse-on-surface": "#313032",
+              "on-primary-fixed-variant": "#454747",
+              "tertiary-fixed": "#e4e1e5",
+              "inverse-surface": "#e5e1e4",
+              "error-container": "#93000a",
+              "tertiary-fixed-dim": "#c8c6c9",
+              "on-secondary-fixed": "#1b1b1e",
+              "on-tertiary-fixed": "#1b1b1e",
+              "secondary-fixed": "#e4e1e6",
+              "on-surface": "#e5e1e4",
+              "on-tertiary-container": "#656467",
+              "on-error": "#690005",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            spacing: {
+              gutter: "16px",
+              unit: "4px",
+              "container-max": "1440px",
+              margin: "24px",
+            },
+            fontFamily: {
+              "headline-lg": ["Geist"],
+              "label-sm": ["Geist"],
+              "body-md": ["Geist"],
+              "headline-lg-mobile": ["Geist"],
+              "code-sm": ["Geist"],
+              "title-md": ["Geist"],
+              "display-lg": ["Geist"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.01em",
+                  fontWeight: "500",
+                },
+              ],
+              "label-sm": [
+                "12px",
+                {
+                  lineHeight: "1.0",
+                  letterSpacing: "0.05em",
+                  fontWeight: "500",
+                },
+              ],
+              "body-md": ["14px", { lineHeight: "1.6", fontWeight: "400" }],
+              "headline-lg-mobile": [
+                "24px",
+                { lineHeight: "1.2", fontWeight: "500" },
+              ],
+              "code-sm": ["13px", { lineHeight: "1.5", fontWeight: "400" }],
+              "title-md": ["18px", { lineHeight: "1.4", fontWeight: "500" }],
+              "display-lg": [
+                "48px",
+                {
+                  lineHeight: "1.1",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "600",
+                },
+              ],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen flex flex-col bg-background text-on-surface overflow-x-hidden selection:bg-primary selection:text-on-primary"
+  >
+    <!-- TopNavBar -->
+    <header
+      class="flex justify-between items-center h-16 px-gutter w-full fixed top-0 z-50 bg-surface border-b border-outline-variant"
+    >
+      <div class="flex items-center gap-8">
+        <a
+          class="font-title-md text-title-md font-bold tracking-tight text-primary"
+          href="/dashboard"
+          >VectorHorizon</a
+        >
+        <nav class="hidden md:flex gap-6 items-center h-full pt-4">
+          <a
+            class="text-primary border-b border-primary pb-4 font-body-md text-body-md transition-colors duration-200"
+            href="#"
+            >My Worlds</a
+          >
+          <a
+            class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-body-md text-body-md"
+            href="#"
+            >World Canvas</a
+          >
+        </nav>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors"
+        >
+          search
+        </button>
+        <div
+          class="h-8 w-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center cursor-pointer overflow-hidden hover:border-primary transition-colors"
+        >
+          <img
+            alt="User Profile"
+            class="w-full h-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDww12CahgmUM5f7Doju0Pl8vdh-lYI8gsIZ7h8ycRpbRSa6R-i0IgWUX_hQBjsfV2WJzGn9lwUquHqN4AXvuLs8wiZCQGttNy6OH1OdHCzepKD8ssTLPX2H2uuxgKz5rEL_xxfjMRFDFXfZRjfL9Hu1kR-16-1P6Lp1tAAKRozmqIoKVp5V2iAfO164Zl-68HOz8jWkg8JIuBHQQo2k-drbLN76LeHLe95tUkhJjDQbjEevuKa_8cgeJ-ir_TWO7_nvqjPZHQOWmQr"
+          />
+        </div>
+      </div>
+    </header>
+    <!-- SideNavBar (Desktop Only) -->
+    <aside
+      class="hidden lg:flex flex-col h-screen py-margin px-4 gap-4 fixed left-0 top-16 w-64 bg-surface-container border-r border-outline-variant z-40"
+    >
+      <div class="flex flex-col gap-1">
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded text-primary bg-surface-container-highest font-label-sm text-label-sm transition-all duration-150 ease-in-out"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="dashboard"
+            >dashboard</span
+          >
+          Dashboard
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-primary font-label-sm text-label-sm transition-all duration-150 ease-in-out"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="deployed_code"
+            >deployed_code</span
+          >
+          Generator
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-primary font-label-sm text-label-sm transition-all duration-150 ease-in-out"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="database"
+            >database</span
+          >
+          Assets
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-primary font-label-sm text-label-sm transition-all duration-150 ease-in-out"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="settings"
+            >settings</span
+          >
+          Settings
+        </a>
+      </div>
+      <div class="mt-auto flex flex-col gap-1">
+        <button
+          class="w-full bg-primary text-on-primary font-label-sm text-label-sm py-3 rounded flex items-center justify-center gap-2 mb-4 hover:opacity-90 transition-opacity"
+        >
+          <span class="material-symbols-outlined" style="font-size: 18px"
+            >add</span
+          >
+          Create New World
+        </button>
+        <a
+          class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary font-label-sm text-label-sm transition-colors"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="help">help</span>
+          Help
+        </a>
+        <a
+          class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary font-label-sm text-label-sm transition-colors"
+          href="#"
+        >
+          <span class="material-symbols-outlined" data-icon="sensors"
+            >sensors</span
+          >
+          Status
+        </a>
+      </div>
+    </aside>
+    <!-- Main Content Canvas -->
+    <main
+      class="flex-1 mt-16 lg:ml-64 p-gutter md:p-margin flex flex-col gap-margin relative"
+    >
+      <!-- Animated Background Detail (Subtle) -->
+      <div class="fixed inset-0 pointer-events-none opacity-20"></div>
+      <!-- Header Section -->
+      <section
+        class="flex flex-col md:flex-row md:items-end justify-between gap-4 relative z-10"
+      >
+        <div class="flex flex-col gap-1">
+          <h1
+            class="font-headline-lg text-headline-lg text-primary tracking-tight"
+          >
+            My Worlds
+          </h1>
+          <p class="font-body-md text-body-md text-on-surface-variant">
+            Manage and explore your generated environments.
+          </p>
+        </div>
+        <button
+          class="bg-primary text-on-primary font-label-sm text-label-sm px-6 h-10 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95"
+        >
+          <span class="material-symbols-outlined" style="font-size: 18px"
+            >add</span
+          >
+          New World
+        </button>
+      </section>
+      <!-- Divider -->
+      <div
+        class="h-px w-full bg-outline-variant opacity-50 relative z-10"
+      ></div>
+      <!-- Dashboard Content -->
+      <div class="flex-1 relative z-10">
+        <!-- Conditional Rendering Logic (Mocked with JS/CSS) -->
+        <!-- Grid State (Show if worlds exist) -->
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+          id="worlds-grid"
+        >
+          <!-- World Card 1 -->
+          <div
+            class="group flex flex-col gap-3 p-2 rounded-lg bg-surface-container-low border border-outline-variant hover:border-zinc-600 transition-all duration-300 cursor-pointer"
+          >
+            <div
+              class="aspect-video w-full overflow-hidden rounded bg-surface-container-highest relative"
+            >
+              <img
+                alt="Neon Nexus World"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                data-alt="A cinematic, high-fidelity 3D render of a futuristic minimalist laboratory at dusk. The room is characterized by smooth charcoal-grey surfaces and sharp white architectural lines. Soft cyan accent lighting emanates from recessed floor strips, casting long, geometric shadows. The atmosphere is quiet, professional, and technically advanced, consistent with a high-end industrial aesthetic."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBNPQuKCizUHEaFdzm-apEoRfwCbtR6p3CiUkbd0OMLCCpF1XFpjT6_4yZ0P5l_TDsjbqf_YBKAKWsRpqLU_QAWcwSV5Z9kK8ipsxI4xRkgnwLwihEirqcVrbXdAHCVFfjrQSv4o4rsT-4hg5hhhnMcunAYduf36iEger6I8ncF8RID03kPa17hoa82_SchuU8PjKcMqiiKoqLZpz191QAYER3uEZ5-QoRZmgSSTcOrSUt0t7e4AdoujfPYfdNdPgq_tMhYb7ZLg5s"
+              />
+              <div
+                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-white text-4xl"
+                  >play_circle</span
+                >
+              </div>
+            </div>
+            <div class="flex flex-col px-1 pb-1">
+              <div class="flex justify-between items-start">
+                <h3
+                  class="font-title-md text-title-md text-primary group-hover:text-tertiary transition-colors"
+                >
+                  Neon Nexus
+                </h3>
+                <button
+                  class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors"
+                >
+                  more_vert
+                </button>
+              </div>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  class="font-label-sm text-label-sm text-on-surface-variant"
+                  >Created Oct 24, 2023</span
+                >
+                <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
+                <span class="font-label-sm text-label-sm text-zinc-500"
+                  >READY</span
+                >
+              </div>
+            </div>
+          </div>
+          <!-- World Card 2 -->
+          <div
+            class="group flex flex-col gap-3 p-2 rounded-lg bg-surface-container-low border border-outline-variant hover:border-zinc-600 transition-all duration-300 cursor-pointer"
+          >
+            <div
+              class="aspect-video w-full overflow-hidden rounded bg-surface-container-highest relative"
+            >
+              <img
+                alt="Obsidian Plains World"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                data-alt="A wide-angle conceptual visualization of a digital desert landscape under a dark violet sky. The ground consists of perfectly tessellated crystalline structures in shades of deep obsidian. Thin, brilliant white light filaments trace the edges of the horizon. The lighting is low-key with high-contrast highlights, evoking a sense of vast, silent technical precision and mathematical beauty."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXEqnpkker4c_YjcGPpLfKPvTipnCUHqQa1wy0RbBrK2F9W6HQ5vI-tbECLZeLRiqEmHKBw1dJsCBBK5p-m3ahApOYDeiuy6XYZ_2NkXMh2jafSqiMmJdLOU4iNnkRYtiAHAoumG2cX56WvZhQUf0p_AtE3DXyuSt89vl-lYaH90Pao_k6hJ9UjP6htaZI6GPbpRDAxKVWU2KgvIJfWk1GQziBNVr697C2dPMKspDGu_Nk4KoZu4iQmncEbQhmbfezoltwwgV2SN3U"
+              />
+              <div
+                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-white text-4xl"
+                  >play_circle</span
+                >
+              </div>
+            </div>
+            <div class="flex flex-col px-1 pb-1">
+              <div class="flex justify-between items-start">
+                <h3
+                  class="font-title-md text-title-md text-primary group-hover:text-tertiary transition-colors"
+                >
+                  Obsidian Plains
+                </h3>
+                <button
+                  class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors"
+                >
+                  more_vert
+                </button>
+              </div>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  class="font-label-sm text-label-sm text-on-surface-variant"
+                  >Created Nov 12, 2023</span
+                >
+                <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
+                <span class="font-label-sm text-label-sm text-zinc-500"
+                  >READY</span
+                >
+              </div>
+            </div>
+          </div>
+          <!-- World Card 3 -->
+          <div
+            class="group flex flex-col gap-3 p-2 rounded-lg bg-surface-container-low border border-outline-variant hover:border-zinc-600 transition-all duration-300 cursor-pointer"
+          >
+            <div
+              class="aspect-video w-full overflow-hidden rounded bg-surface-container-highest relative"
+            >
+              <img
+                alt="Void Atrium World"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                data-alt="An intricate 3D interior of a glass-walled atrium overlooking a starry nebula. The architecture uses a monochromatic zinc palette with polished steel accents and large transparent panes. Soft ethereal light from the nebula floods the space in muted purples and whites. The composition is clean, airy, and hyper-modern, reflecting a high-end generative design system."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAToWANL7Rb_1eH_G-iuK_ApujIUeA4Xzvvl4K3qbeySqbDi2NrQuZQ_-2fKlmwiAEwOYaBlMNuRW-RgiPsTRpseCvnl_1fJoSAy9Z0gVTfLPKFGP_rS3mvp9VD1eafcWUVYdKgLRxuz0PHm1v7d4PSv3yFOAuXdwxxlBHHmT6RcAqAZu40CVVKgz4_zHC-4T3sLgml387vfmqqHE-CAYySpbc1Ecl458sY4ZTTxjSwXUCHzUUrdnfORPeiBIjIX5j0WnfOuvl2rPW0"
+              />
+              <div
+                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-white text-4xl"
+                  >play_circle</span
+                >
+              </div>
+            </div>
+            <div class="flex flex-col px-1 pb-1">
+              <div class="flex justify-between items-start">
+                <h3
+                  class="font-title-md text-title-md text-primary group-hover:text-tertiary transition-colors"
+                >
+                  Void Atrium
+                </h3>
+                <button
+                  class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors"
+                >
+                  more_vert
+                </button>
+              </div>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  class="font-label-sm text-label-sm text-on-surface-variant"
+                  >Created Dec 05, 2023</span
+                >
+                <span class="h-1 w-1 rounded-full bg-outline-variant"></span>
+                <span class="font-label-sm text-label-sm text-zinc-500"
+                  >READY</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Empty State (Hidden by default, shown via toggle) -->
+        <div
+          class="hidden flex flex-col items-center justify-center py-32 px-gutter text-center border border-dashed border-outline-variant rounded-xl bg-surface-container-lowest"
+          id="empty-state"
+        >
+          <div
+            class="mb-6 p-6 rounded-full bg-surface-container-high text-zinc-600"
+          >
+            <span class="material-symbols-outlined" style="font-size: 64px"
+              >language</span
+            >
+          </div>
+          <h2 class="font-headline-lg text-headline-lg text-primary mb-2">
+            No worlds yet
+          </h2>
+          <p
+            class="max-w-md font-body-md text-body-md text-on-surface-variant mb-8"
+          >
+            Upload an image and start exploring. Your generated worlds will
+            appear here.
+          </p>
+          <button
+            class="bg-primary text-on-primary font-label-sm text-label-sm px-8 py-4 rounded flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl"
+          >
+            <span class="material-symbols-outlined">rocket_launch</span>
+            Create Your First World
+          </button>
+        </div>
+      </div>
+    </main>
+    <!-- Footer -->
+    <footer
+      class="flex justify-between items-center py-8 px-gutter w-full mt-auto bg-surface border-t border-outline-variant relative z-10"
+    >
+      <span
+        class="font-label-sm text-label-sm uppercase tracking-widest text-secondary"
+        >© 2024 VectorHorizon. Technical Minimalism.</span
+      >
+      <div class="flex gap-6">
+        <a
+          class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors"
+          href="#"
+          >Terms</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors"
+          href="#"
+          >Privacy</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors"
+          href="#"
+          >API Docs</a
+        >
+      </div>
+    </footer>
+    <!-- Interactive Layer: Simple state toggle for demo -->
+    <script>
+      // Micro-interaction for world cards
+      document.querySelectorAll(".group").forEach((card) => {
+        card.addEventListener("mouseenter", () => {
+          card.style.borderColor = "#52525b"; // Zinc-600
+        });
+        card.addEventListener("mouseleave", () => {
+          card.style.borderColor = "#27272a"; // Zinc-800
+        });
+      });
+
+      // Simple helper to toggle empty state for presentation purposes
+      function toggleState() {
+        const grid = document.getElementById("worlds-grid");
+        const empty = document.getElementById("empty-state");
+        if (grid.classList.contains("hidden")) {
+          grid.classList.remove("hidden");
+          empty.classList.add("hidden");
+        } else {
+          grid.classList.add("hidden");
+          empty.classList.remove("hidden");
+        }
+      }
+
+      // Allow developer console testing
+      window.toggleDashboardState = toggleState;
+    </script>
+  </body>
+</html>

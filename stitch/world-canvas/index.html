@@ -1,0 +1,421 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>World Canvas | VectorHorizon</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @font-face {
+        font-family: "Geist";
+        src: url("https://cdn.jsdelivr.net/gh/vercel/geist-font@main/packages/next/dist/fonts/geist-sans/Geist-Variable.woff2")
+          format("woff2");
+      }
+      body {
+        font-family: "Geist", sans-serif;
+        background-color: #0e0e10; /* surface-container-lowest */
+        color: #e5e1e4; /* on-surface */
+        margin: 0;
+        overflow: hidden;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .joystick-btn:active {
+        background-color: #353437; /* surface-container-highest */
+        transform: scale(0.95);
+      }
+      @keyframes pulse-subtle {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+      .generating-pulse {
+        animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      .directional-blur {
+        filter: blur(8px);
+        transition: filter 0.5s ease;
+      }
+    </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#c8c5ca",
+              "secondary-container": "#47464a",
+              "outline-variant": "#444748",
+              "surface-dim": "#131315",
+              "on-tertiary-fixed-variant": "#47464a",
+              "surface-container": "#201f22",
+              "on-tertiary": "#303033",
+              "on-surface-variant": "#c4c7c8",
+              "on-background": "#e5e1e4",
+              "primary-fixed-dim": "#c6c6c7",
+              "surface-container-high": "#2a2a2c",
+              "on-primary-container": "#636565",
+              secondary: "#c8c5ca",
+              tertiary: "#ffffff",
+              surface: "#131315",
+              "surface-tint": "#c6c6c7",
+              "on-secondary-fixed-variant": "#47464a",
+              "primary-fixed": "#e2e2e2",
+              "on-primary-fixed": "#1a1c1c",
+              "inverse-primary": "#5d5f5f",
+              "on-error-container": "#ffdad6",
+              "surface-container-highest": "#353437",
+              outline: "#8e9192",
+              "on-secondary": "#303033",
+              "surface-variant": "#353437",
+              "primary-container": "#e2e2e2",
+              "on-primary": "#2f3131",
+              "tertiary-container": "#e4e1e5",
+              "surface-container-lowest": "#0e0e10",
+              error: "#ffb4ab",
+              "on-secondary-container": "#b6b4b8",
+              "surface-container-low": "#1c1b1d",
+              "surface-bright": "#39393b",
+              background: "#131315",
+              primary: "#ffffff",
+              "inverse-on-surface": "#313032",
+              "on-primary-fixed-variant": "#454747",
+              "tertiary-fixed": "#e4e1e5",
+              "inverse-surface": "#e5e1e4",
+              "error-container": "#93000a",
+              "tertiary-fixed-dim": "#c8c6c9",
+              "on-secondary-fixed": "#1b1b1e",
+              "on-tertiary-fixed": "#1b1b1e",
+              "secondary-fixed": "#e4e1e6",
+              "on-surface": "#e5e1e4",
+              "on-tertiary-container": "#656467",
+              "on-error": "#690005",
+            },
+            spacing: {
+              gutter: "16px",
+              unit: "4px",
+              "container-max": "1440px",
+              margin: "24px",
+            },
+            fontFamily: {
+              "headline-lg": ["Geist"],
+              "label-sm": ["Geist"],
+              "body-md": ["Geist"],
+              "title-md": ["Geist"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.01em",
+                  fontWeight: "500",
+                },
+              ],
+              "label-sm": [
+                "12px",
+                {
+                  lineHeight: "1.0",
+                  letterSpacing: "0.05em",
+                  fontWeight: "500",
+                },
+              ],
+              "body-md": ["14px", { lineHeight: "1.6", fontWeight: "400" }],
+              "title-md": ["18px", { lineHeight: "1.4", fontWeight: "500" }],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="flex flex-col h-screen overflow-hidden">
+    <!-- TopNavBar (Shared Component) -->
+    <header
+      class="bg-surface border-b border-outline-variant flex justify-between items-center h-16 px-gutter w-full z-50"
+    >
+      <div
+        class="font-title-md text-title-md font-bold tracking-tight text-primary"
+      >
+        VectorHorizon
+      </div>
+      <nav class="hidden md:flex gap-8 items-center h-full">
+        <a
+          class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+          href="#"
+          >My Worlds</a
+        >
+        <a
+          class="font-body-md text-body-md text-primary border-b border-primary pb-4 h-full flex items-center mt-4"
+          href="#"
+          >World Canvas</a
+        >
+      </nav>
+      <div class="flex gap-4">
+        <button
+          class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+        >
+          Sign In
+        </button>
+        <button
+          class="bg-primary text-on-primary px-4 py-2 font-body-md text-body-md font-medium rounded hover:opacity-90 transition-opacity"
+        >
+          Get Started
+        </button>
+      </div>
+    </header>
+    <main
+      class="flex-grow flex items-center justify-center p-gutter lg:p-margin relative bg-surface-container-lowest"
+    >
+      <!-- Canvas Container -->
+      <div
+        class="relative w-full max-w-[1200px] aspect-video bg-surface-dim rounded-lg border border-outline-variant overflow-hidden shadow-2xl group"
+      >
+        <!-- Header Overlay (Fixed to top of viewport) -->
+        <div
+          class="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-30 pointer-events-none"
+        >
+          <div class="flex flex-col gap-1 pointer-events-auto">
+            <h1 class="font-title-md text-title-md text-primary">
+              World Canvas
+            </h1>
+            <div class="flex items-center gap-2" id="status-container">
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-primary"
+                id="status-dot"
+              ></span>
+              <span
+                class="font-label-sm text-label-sm text-on-surface-variant tracking-widest uppercase"
+                id="status-text"
+                >Ready</span
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Viewport Canvas Area -->
+        <div
+          class="relative w-full h-full flex items-center justify-center overflow-hidden"
+          id="canvas-viewport"
+        >
+          <!-- Initial Image Placeholder -->
+          <img
+            class="w-full h-full object-cover transition-all duration-700"
+            data-alt="A hyper-realistic cinematic wide shot of a futuristic minimalist sci-fi environment. The scene shows a vast, empty architectural interior made of dark matte zinc and polished stone, illuminated by narrow slits of cold white light. The atmosphere is dense with a subtle atmospheric haze, creating a sense of immense scale and quiet technological authority. The color palette is strictly monochromatic, with deep shadows and brilliant highlights."
+            id="main-view"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYOhSzzRtBy0dyTn1oKmqwtvMrCmjDz1LzVSL-IYwo7nFXbUN_FpR2MX5hkJ77AtEG5HEikPih6eZ1Yz3ScSo6wjDgbLA4RmMaQi6yR8_24Ev-okOIhjkEJBgJGOYsXitPU9AShUONgxPrTzusKcQwL3K0NV59FWUdcKkH_LgpNoT3BvluM8gDfmEi09E8QtksVNQmwBRkgI8FbAH_a0uvgX2Odb184Afgfb-jBe5c9eD81l_hp5gu-tB_hbPOTQ3V7KhZ3nYEdo1q"
+          />
+          <!-- Loading Overlay (Initially Hidden) -->
+          <div
+            class="absolute inset-0 bg-surface-dim/40 backdrop-blur-sm hidden flex-col items-center justify-center pointer-events-none"
+            id="loading-overlay"
+          >
+            <div
+              class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"
+            ></div>
+            <p
+              class="mt-4 font-label-sm text-label-sm tracking-widest text-primary uppercase"
+            >
+              Synthesizing Geometry
+            </p>
+          </div>
+        </div>
+        <!-- Virtual D-pad Joystick Overlay -->
+        <div class="absolute bottom-6 right-6 z-40">
+          <div
+            class="relative w-40 h-40 rounded-full bg-surface-dim/80 border border-outline-variant/30 flex items-center justify-center"
+          >
+            <!-- Center Dot -->
+            <div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+            <!-- Directions -->
+            <button
+              class="joystick-btn absolute top-1 left-1/2 -translate-x-1/2 w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
+              onclick="navigate('up')"
+            >
+              <span class="material-symbols-outlined text-on-surface-variant"
+                >arrow_upward</span
+              >
+            </button>
+            <button
+              class="joystick-btn absolute right-1 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
+              onclick="navigate('right')"
+            >
+              <span class="material-symbols-outlined text-on-surface-variant"
+                >arrow_forward</span
+              >
+            </button>
+            <button
+              class="joystick-btn absolute bottom-1 left-1/2 -translate-x-1/2 w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
+              onclick="navigate('down')"
+            >
+              <span class="material-symbols-outlined text-on-surface-variant"
+                >arrow_downward</span
+              >
+            </button>
+            <button
+              class="joystick-btn absolute left-1 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
+              onclick="navigate('left')"
+            >
+              <span class="material-symbols-outlined text-on-surface-variant"
+                >arrow_back</span
+              >
+            </button>
+          </div>
+        </div>
+        <!-- Error Notification (Toast) -->
+        <div
+          class="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 opacity-0 transform translate-y-4 transition-all duration-300 pointer-events-none"
+          id="error-toast"
+        >
+          <div
+            class="bg-error-container text-on-error-container px-6 py-3 rounded-sm border border-error/20 flex items-center gap-3 shadow-lg"
+          >
+            <span class="material-symbols-outlined text-title-md">error</span>
+            <span
+              class="font-body-md text-body-md font-medium"
+              id="error-message"
+              >Network timeout: Neural synthesis failed.</span
+            >
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Footer (Shared Component) -->
+    <footer
+      class="bg-surface border-t border-outline-variant flex justify-between items-center py-8 px-gutter w-full mt-auto"
+    >
+      <div
+        class="font-label-sm text-label-sm uppercase tracking-widest text-secondary"
+      >
+        © 2024 VectorHorizon. Technical Minimalism.
+      </div>
+      <div class="flex gap-6">
+        <a
+          class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors"
+          href="#"
+          >Terms</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors"
+          href="#"
+          >Privacy</a
+        >
+        <a
+          class="font-label-sm text-label-sm text-secondary hover:text-primary transition-colors"
+          href="#"
+          >API Docs</a
+        >
+      </div>
+    </footer>
+    <script>
+      const statusText = document.getElementById("status-text");
+      const statusDot = document.getElementById("status-dot");
+      const mainView = document.getElementById("main-view");
+      const loadingOverlay = document.getElementById("loading-overlay");
+      const errorToast = document.getElementById("error-toast");
+      const errorMessage = document.getElementById("error-message");
+
+      let isGenerating = false;
+
+      function navigate(direction) {
+        if (isGenerating) return;
+
+        // Update UI to generating state
+        setState("generating");
+
+        // Simulate navigation/generation logic
+        setTimeout(() => {
+          // Random failure for demonstration
+          if (Math.random() < 0.2) {
+            showError("Sync error: Failed to map spatial coordinates.");
+            setState("idle");
+            return;
+          }
+
+          // Success transition
+          setState("playing");
+          mainView.classList.add("directional-blur");
+
+          setTimeout(() => {
+            mainView.classList.remove("directional-blur");
+            setState("idle");
+          }, 1500);
+        }, 2000);
+      }
+
+      function setState(state) {
+        switch (state) {
+          case "generating":
+            isGenerating = true;
+            statusText.innerText = "Generating forward...";
+            statusDot.classList.add("generating-pulse");
+            statusDot.classList.replace("bg-primary", "bg-outline");
+            loadingOverlay.classList.remove("hidden");
+            break;
+          case "playing":
+            statusText.innerText = "Playing";
+            statusDot.classList.remove("generating-pulse");
+            statusDot.classList.replace("bg-outline", "bg-primary");
+            loadingOverlay.classList.add("hidden");
+            break;
+          case "idle":
+          default:
+            isGenerating = false;
+            statusText.innerText = "Ready";
+            statusDot.classList.remove("generating-pulse");
+            statusDot.classList.replace("bg-outline", "bg-primary");
+            loadingOverlay.classList.add("hidden");
+            break;
+        }
+      }
+
+      function showError(msg) {
+        errorMessage.innerText = msg;
+        errorToast.classList.remove(
+          "opacity-0",
+          "translate-y-4",
+          "pointer-events-none",
+        );
+        errorToast.classList.add("opacity-100", "translate-y-0");
+
+        setTimeout(() => {
+          errorToast.classList.add(
+            "opacity-0",
+            "translate-y-4",
+            "pointer-events-none",
+          );
+          errorToast.classList.remove("opacity-100", "translate-y-0");
+        }, 4000);
+      }
+
+      // Spacebar and Arrow Key keyboard support
+      window.addEventListener("keydown", (e) => {
+        if (isGenerating) return;
+        if (e.key === "ArrowUp") navigate("up");
+        if (e.key === "ArrowRight") navigate("right");
+        if (e.key === "ArrowDown") navigate("down");
+        if (e.key === "ArrowLeft") navigate("left");
+      });
+    </script>
+  </body>
+</html>
