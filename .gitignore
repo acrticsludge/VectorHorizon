@@ -83,6 +83,9 @@ logs/
 tmp/
 temp/
 
+# ── Vercel root directory (deployed separately) ─────────────
+/frontend
+
 # ── Misc ────────────────────────────────────────────────────
 *.tgz
 *.tar.gz
