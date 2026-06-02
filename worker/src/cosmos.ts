@@ -13,13 +13,14 @@ export async function generateVideo(
 ): Promise<CosmosResponse | { error: string }> {
   const baseUrl = env.NVIDIA_COSMOS_BASE_URL || 'https://integrate.api.nvidia.com/v1';
 
+  // Accept both raw base64 and data URLs — strip data: prefix if present
+  const imageData = inputImageBase64.startsWith('data:')
+    ? inputImageBase64
+    : `data:image/jpeg;base64,${inputImageBase64}`;
+
   const payload: Record<string, unknown> = {
     model: 'nvidia/cosmos-predict2.5-video2world',
     prompt: trajectoryPrompt,
-    // Accept both raw base64 and data URLs — strip data: prefix if present
-    const imageData = inputImageBase64.startsWith('data:')
-      ? inputImageBase64
-      : `data:image/jpeg;base64,${inputImageBase64}`;
     image: imageData,
     video_params: {
       height: 720,
