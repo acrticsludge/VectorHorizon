@@ -58,3 +58,20 @@ export async function generateTransition(
 export async function listWorlds(): Promise<ApiResponse<Array<{ id: string; name: string; initial_image_url: string; created_at: string }>>> {
   return fetchWorker('/worlds');
 }
+
+export async function deleteWorld(worldId: string): Promise<ApiResponse<{ deleted: boolean }>> {
+  const token = await window.Clerk?.session?.getToken();
+  if (!token) return { error: 'Not authenticated' };
+
+  try {
+    const res = await fetch(`${WORKER_URL}/worlds/${worldId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json();
+    if (!res.ok) return { error: body.error || 'Delete failed' };
+    return { data: body.data };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Network error' };
+  }
+}

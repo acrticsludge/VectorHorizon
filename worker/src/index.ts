@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import { verifyAuth } from './auth';
 import { uploadToR2, getPublicUrl } from './r2';
 import { generateVideo } from './cosmos';
-import { createWorld, createTransition } from './supabase';
+import { createWorld, createTransition, deleteWorld } from './supabase';
 import type { Env, GenerationRequest } from './types';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -11,7 +11,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', cors({
   origin: ['http://localhost:3000', 'https://vectorhorizon.vercel.app'],
   allowHeaders: ['Content-Type', 'Authorization'],
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
 }));
 
 app.get('/health', (c) => c.json({ data: { status: 'ok' } }));
@@ -29,11 +29,12 @@ app.post('/worlds', async (c) => {
   try {
     const imageBuffer = await imageFile.arrayBuffer();
     const r2Key = `worlds/${auth.userId}/${crypto.randomUUID()}-${imageFile.name}`;
-    await uploadToR2(c.env, r2Key, imageBuffer, imageFile.type);
+    try { await uploadToR2(c.env, r2Key, imageBuffer, imageFile.type); }
+    catch (e) { console.error('[worker] R2 upload failed:', e); return c.json({ error: 'R2 upload failed' }, 500); }
     const result = await createWorld(c.env, auth.userId, getPublicUrl(r2Key));
-    if ('error' in result) return c.json({ error: result.error }, 500);
+    if ('error' in result) { console.error('[worker] DB createWorld failed:', result.error); return c.json({ error: result.error }, 500); }
     return c.json({ data: { worldId: result.id, imageUrl: getPublicUrl(r2Key) } }, 201);
-  } catch (err) { return c.json({ error: 'Upload failed' }, 500); }
+  } catch (err) { console.error('[worker] Upload catch-all:', err); return c.json({ error: 'Upload failed' }, 500); }
 });
 
 app.post('/generate', async (c) => {
@@ -79,6 +80,19 @@ app.get('/worlds', async (c) => {
     if (error) return c.json({ error: 'Failed to fetch worlds' }, 500);
     return c.json({ data }, 200);
   } catch (err) { return c.json({ error: 'Database error' }, 500); }
+});
+
+app.delete('/worlds/:id', async (c) => {
+  const auth = await verifyAuth(c.req.header('Authorization')?.replace('Bearer ', '') || '', c.env);
+  if ('error' in auth) return c.json({ error: auth.error }, 401);
+
+  const worldId = c.req.param('id');
+  const result = await deleteWorld(c.env, worldId, auth.userId);
+  if (result && 'error' in result) {
+    const status = result.error === 'Forbidden' ? 403 : result.error === 'World not found' ? 404 : 500;
+    return c.json({ error: result.error }, status);
+  }
+  return c.json({ data: { deleted: true } }, 200);
 });
 
 export default app;

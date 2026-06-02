@@ -22,3 +22,21 @@ export async function createTransition(env: Env, worldId: string, userId: string
     return { id: data.id };
   } catch (err) { return { error: 'Database error' }; }
 }
+
+export async function deleteWorld(env: Env, worldId: string, userId: string): Promise<null | { error: string }> {
+  try {
+    // Verify ownership
+    const { data: world } = await getDb(env).from('worlds').select('user_id').eq('id', worldId).single();
+    if (!world) return { error: 'World not found' };
+    if (world.user_id !== userId) return { error: 'Forbidden' };
+
+    // Delete transitions first (foreign key), then world
+    const { error: tErr } = await getDb(env).from('world_transitions').delete().eq('world_id', worldId);
+    if (tErr) return { error: tErr.message };
+
+    const { error: wErr } = await getDb(env).from('worlds').delete().eq('id', worldId);
+    if (wErr) return { error: wErr.message };
+
+    return null;
+  } catch (err) { return { error: 'Database error' }; }
+}
