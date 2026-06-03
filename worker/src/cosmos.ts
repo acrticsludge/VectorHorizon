@@ -1,5 +1,4 @@
 import { Client, handle_file } from "@gradio/client";
-import type { Env } from "./types";
 
 const SPACE_NAME = "multimodalart/Cosmos3-Nano";
 const GRADIO_ENDPOINT = "/predict";
@@ -9,20 +8,24 @@ interface GradioResult {
 }
 
 export async function generateVideo(
-  env: Env,
   inputImageBase64: string,
   trajectoryPrompt: string,
 ): Promise<{ videoUrl: string } | { error: string }> {
   try {
     const app = await Client.connect(SPACE_NAME);
 
-    const rawBase64 = inputImageBase64.replace(/^data:image\/\w+;base64,/, "");
-    const byteChars = atob(rawBase64);
-    const byteNums = new Uint8Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) {
-      byteNums[i] = byteChars.charCodeAt(i);
+    let imageBlob: Blob;
+    try {
+      const rawBase64 = inputImageBase64.replace(/^data:image\/\w+;base64,/, "");
+      const byteChars = atob(rawBase64);
+      const byteNums = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) {
+        byteNums[i] = byteChars.charCodeAt(i);
+      }
+      imageBlob = new Blob([byteNums], { type: "image/jpeg" });
+    } catch {
+      return { error: "Invalid image data — upload a new image and try again" };
     }
-    const imageBlob = new Blob([byteNums], { type: "image/jpeg" });
 
     const result = await app.predict(GRADIO_ENDPOINT, {
       prompt: trajectoryPrompt,

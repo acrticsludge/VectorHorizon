@@ -76,11 +76,15 @@ app.post('/generate', async (c) => {
       right: 'The camera pans right, revealing right-side details.',
     };
     const prompt = body.trajectoryVector || directionLabels[body.direction] || `Camera moves ${body.direction}`;
-    const cosmosResult = await generateVideo(c.env, body.imageBase64, prompt);
+    const cosmosResult = await generateVideo(body.imageBase64, prompt);
     if ('error' in cosmosResult) return c.json({ error: cosmosResult.error }, 502);
 
     // Fetch video from HF Space URL
     const videoResponse = await fetch(cosmosResult.videoUrl);
+    if (!videoResponse.ok) {
+      console.error(`[worker] Failed to download generated video: ${videoResponse.status}`);
+      return c.json({ error: 'Generated video could not be downloaded' }, 502);
+    }
     const videoArrayBuffer = await videoResponse.arrayBuffer();
     const videoBinary = new Uint8Array(videoArrayBuffer);
     const videoKey = `transitions/${auth.userId}/${body.worldId}/${crypto.randomUUID()}.mp4`;
