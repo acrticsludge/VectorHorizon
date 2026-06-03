@@ -11,8 +11,6 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE_KEY: string;
   CLERK_JWKS_URL: string;
-  NVIDIA_COSMOS_API_KEY: string;
-  NVIDIA_COSMOS_BASE_URL: string;
   WORLD_ASSETS: R2Bucket;
 }
 
