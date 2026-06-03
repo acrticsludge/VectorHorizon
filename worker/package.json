@@ -10,7 +10,8 @@
   "dependencies": {
     "hono": "^4",
     "@supabase/supabase-js": "^2",
-    "jose": "^5"
+    "jose": "^5",
+    "@gradio/client": "^1.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4",
