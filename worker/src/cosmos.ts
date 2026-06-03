@@ -1,61 +1,57 @@
-import type { Env } from './types';
+import { Client, handle_file } from "@gradio/client";
+import type { Env } from "./types";
 
-interface CosmosResponse {
-  videoBase64: string;
-  seed: number;
+const SPACE_NAME = "multimodalart/Cosmos3-Nano";
+const GRADIO_ENDPOINT = "/predict";
+
+interface GradioResult {
+  data: [string];
 }
 
 export async function generateVideo(
   env: Env,
   inputImageBase64: string,
   trajectoryPrompt: string,
-  previousVideoBase64?: string
-): Promise<CosmosResponse | { error: string }> {
-  const baseUrl = env.NVIDIA_COSMOS_BASE_URL || 'https://integrate.api.nvidia.com/v1';
-
-  // Accept both raw base64 and data URLs — strip data: prefix if present
-  const imageData = inputImageBase64.startsWith('data:')
-    ? inputImageBase64
-    : `data:image/jpeg;base64,${inputImageBase64}`;
-
-  const payload: Record<string, unknown> = {
-    model: 'nvidia/cosmos-predict2.5-video2world',
-    prompt: trajectoryPrompt,
-    image: imageData,
-    video_params: {
-      height: 720,
-      width: 1280,
-      num_frames: 24,
-      fps: 8,
-    },
-  };
-
-  if (previousVideoBase64) {
-    payload.video = `data:video/mp4;base64,${previousVideoBase64}`;
-  }
-
+): Promise<{ videoUrl: string } | { error: string }> {
   try {
-    const response = await fetch(`${baseUrl}/videos/sync`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${env.NVIDIA_COSMOS_API_KEY}`,
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    const app = await Client.connect(SPACE_NAME);
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return { error: `Cosmos API error (${response.status}): ${errText.slice(0, 200)}` };
+    const rawBase64 = inputImageBase64.replace(/^data:image\/\w+;base64,/, "");
+    const byteChars = atob(rawBase64);
+    const byteNums = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) {
+      byteNums[i] = byteChars.charCodeAt(i);
+    }
+    const imageBlob = new Blob([byteNums], { type: "image/jpeg" });
+
+    const result = await app.predict(GRADIO_ENDPOINT, {
+      prompt: trajectoryPrompt,
+      mode: "Video",
+      conditioningImage: handle_file(imageBlob),
+      generateAudio: false,
+      seed: 0,
+    }) as GradioResult;
+
+    const videoFilePath = result.data?.[0];
+    if (!videoFilePath) {
+      return { error: "Space returned no video file" };
     }
 
-    const result = await response.json() as { b64_video?: string; seed?: number; error?: string };
-    if (result.error) return { error: result.error };
-    if (!result.b64_video) return { error: 'Cosmos returned no video data' };
+    let videoUrl: string;
+    if (videoFilePath.startsWith("http://") || videoFilePath.startsWith("https://")) {
+      videoUrl = videoFilePath;
+    } else if (videoFilePath.startsWith("/")) {
+      videoUrl = `https://${SPACE_NAME.replace("/", "-")}.hf.space${videoFilePath}`;
+    } else {
+      videoUrl = `https://${SPACE_NAME.replace("/", "-")}.hf.space/${videoFilePath}`;
+    }
 
-    return { videoBase64: result.b64_video, seed: result.seed ?? 0 };
+    return { videoUrl };
   } catch (err) {
-    return { error: `Cosmos request failed: ${err instanceof Error ? err.message : 'unknown'}` };
+    const message = err instanceof Error ? err.message : "Unknown error";
+    if (message.includes("timeout") || message.includes("timed out")) {
+      return { error: "Generation timed out. The Space may be cold-starting or busy." };
+    }
+    return { error: `Cosmos Space error: ${message}` };
   }
 }

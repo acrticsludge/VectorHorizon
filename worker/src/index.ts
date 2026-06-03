@@ -79,8 +79,10 @@ app.post('/generate', async (c) => {
     const cosmosResult = await generateVideo(c.env, body.imageBase64, prompt);
     if ('error' in cosmosResult) return c.json({ error: cosmosResult.error }, 502);
 
-    // Decode base64 video → binary
-    const videoBinary = Uint8Array.from(atob(cosmosResult.videoBase64), (c) => c.charCodeAt(0));
+    // Fetch video from HF Space URL
+    const videoResponse = await fetch(cosmosResult.videoUrl);
+    const videoArrayBuffer = await videoResponse.arrayBuffer();
+    const videoBinary = new Uint8Array(videoArrayBuffer);
     const videoKey = `transitions/${auth.userId}/${body.worldId}/${crypto.randomUUID()}.mp4`;
     await uploadToR2(c.env, videoKey, videoBinary, 'video/mp4');
     const publicUrl = getPublicUrl(videoKey);
